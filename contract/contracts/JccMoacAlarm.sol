@@ -5,6 +5,8 @@ import "jcc-solidity-utils/contracts/math/SafeMath.sol";
 import "jcc-solidity-utils/contracts/owner/Administrative.sol";
 import "jcc-solidity-utils/contracts/utils/AddressUtils.sol";
 import "jcc-solidity-utils/contracts/list/AlarmList.sol";
+import "jcc-solidity-utils/contracts/list/AddressList.sol";
+import "jcc-solidity-utils/contracts/list/BalanceList.sol";
 import "jcc-solidity-utils/contracts/interface/IJccMoacAlarm.sol";
 import "jcc-solidity-utils/contracts/interface/IJccMoacAlarmCallback.sol";
 
@@ -17,13 +19,48 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
   using SafeMath for uint256;
   using AddressUtils for address;
   using AlarmList for AlarmList.alarmMap;
+  using AddressList for AddressList.addressMap;
+  using BalanceList for BalanceList.balanceMap;
 
   AlarmList.alarmMap _alarms;
+  // 对允许注册的合约地址做限制
+  AddressList.addressMap _acceptAddress;
+
+  // 充值计费
+  BalanceList.balanceMap _balances;
 
   constructor() Administrative() public {
   }
 
+  event Deposit(address indexed _from, address indexed _contractAddr, uint256 indexed _amount);
+  // 为某个合约定时任务充值
+  function deposit(address _addr) public payable returns (uint256) {
+    emit Deposit(msg.sender, _addr, msg.value);
+    return _balances.add(_addr, msg.value);
+  }
+
+  event Withdraw(address indexed _to, uint256 indexed _amount);
+  // 提现到执行钱包中做燃料用
+  function withdraw(uint256 _amount) public payable onlyPrivileged {
+    emit Withdraw(msg.sender, _amount);
+    msg.sender.transfer(_amount);
+  }
+
+  // 获取合约的存款
+  function balance(address _addr) public view returns (uint256) {
+    return _balances.balance(_addr);
+  }
+
+  function addContract(address _addr) public onlyPrivileged returns (bool) {
+    return _acceptAddress.insert(_addr);
+  }
+
+  function removeContract(address _addr) public onlyPrivileged returns (bool) {
+    return _acceptAddress.remove(_addr);
+  }
+
   function createAlarm(address _addr, uint256 _type, uint256 _begin, uint256 _peroid) public returns (bool) {
+    require(_acceptAddress.exist(msg.sender), "not accept contract call");
     require(_alarms.insert(_addr, msg.sender, _type, _begin, _peroid), "insert alarm successful");
 
     emit CreateAlarm(_addr, _type, _begin, _peroid);
@@ -32,6 +69,8 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
   }
 
   function removeAlarm(address _addr) public returns (bool) {
+    // 允许注册者和管理员删除
+    require(_acceptAddress.exist(msg.sender) || msg.sender == this.admin(), "not accept contract call");
     AlarmList.element memory alarm = _alarms.getByAddr(_addr);
     require(alarm.creatorAddr == msg.sender || msg.sender == this.admin(), "remove alarm caller must be creator or admin");
 
@@ -50,22 +89,33 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
     return _alarms.getList(from, _count);
   }
 
-  function execute(address _addr) public {
-    // uint256 count = _alarms.count();
-    // if (count == 0 ) {
-    //   return;
-    // }
+  event Balance(address indexed _contractAddr, uint256 indexed _origin, uint256 indexed _cost);
+  function execute(address _addr) public onlyPrivileged {
+    // 检查余额，防止无意义的消耗 不能小于0.1MOAC
+    require((_balances.balance(_addr) > 100000000000000000), "must have enough gas");
 
-    // for (uint256 i = 0; i < count; i++) {
-    //   AlarmList.element storage alarm = _alarms.get(i);
-    //   // 如果是一次性的，检查时间是否到了
-    //   // 如果是周期性的，那么计算周期是否到了
-    //   // TODO: 因为区块链的出块不精确性，一个任务是否执行过了，需要判别
-    //   // 对于一次性任务，可以执行完成后删除定义，周期性的呢，要有记录备查
-    //   // 全部在合约里面判断，可信但是燃料太高了，如果这个逻辑放到外部执行，那么笨函数将非常简单
-    // }
+    uint256 _gasBefore = gasleft();
     // 调用合约的callback，触发定时调用
     AlarmList.element memory e = _alarms.getByAddr(_addr);
-    IJccMoacAlarmCallback(e.contractAddr).jccMoacAlarmCallback();
+
+    uint256 gap = block.timestamp.sub(e.begin).mod(e.peroid);
+
+    // 一次性任务直接过，周期性任务时差在一分钟之内都是有效的
+    if (e.alarmType == 0 || gap < 60 ) {
+      // NEEDFIX:如果这里revert了，会消耗gas但是没有入账
+      IJccMoacAlarmCallback(e.contractAddr).jccMoacAlarmCallback();
+    }
+
+    // 一次性任务，执行完毕就自动删除定义
+    if (e.alarmType == 0) {
+      _alarms.remove(e.contractAddr);
+    }
+
+    uint256 _gasAfter = gasleft();
+    uint256 _cost = (_gasBefore.sub(_gasAfter)).mul(tx.gasprice);
+    emit Balance(_addr, _balances.balance(_addr), _cost);
+    _balances.sub(_addr, _cost);
+    // 周期性任务定义不必删除，为什么不检查区块时间和任务周期关系？
+    // 这个逻辑在外部的调用者那里实现，也就是说我们不能期望和保证调用者分秒不差的发起调用
   }
 }

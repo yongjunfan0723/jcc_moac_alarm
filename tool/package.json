@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "bignumber.js": "^9.0.0",
+    "chain3": "^0.1.21",
+    "commander": "^3.0.2",
+    "utf8": "^3.0.0"
+  }
+}
