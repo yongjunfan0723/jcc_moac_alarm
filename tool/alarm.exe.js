@@ -98,7 +98,7 @@ for (var i = 0; i < all.length; i++) {
     let taskCmd = getCmd('execute', '"' + all[i].contractAddr + '"', program.gas_limit);
     let hash = execSync(taskCmd);
 
-    console.log('一次性任务:' + all[i].contractAddr + ' hash:', hash.toString());
+    console.log('一次性任务:' + all[i].contractAddr + ' ', hash.toString());
 
     continue;
   }
@@ -111,6 +111,6 @@ for (var i = 0; i < all.length; i++) {
   let taskCmd = getCmd('execute', '"' + all[i].contractAddr + '"', program.gas_limit);
   let hash = execSync(taskCmd);
 
-  console.log('周期性任务:' + all[i].contractAddr + ' 周期:' + all[i].peroid + '秒 hash:', hash.toString());
+  console.log('周期性任务:' + all[i].contractAddr + ' 周期:' + all[i].peroid + '秒 ', hash.toString());
 }
 
