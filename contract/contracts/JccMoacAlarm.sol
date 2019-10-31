@@ -51,10 +51,12 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
     return _balances.balance(_addr);
   }
 
-  function addContract(address _addr) public onlyPrivileged returns (bool) {
+  // 注册合约不需要权限
+  function addContract(address _addr) public returns (bool) {
     return _acceptAddress.insert(_addr);
   }
 
+  // 移除合约需要权限
   function removeContract(address _addr) public onlyPrivileged returns (bool) {
     return _acceptAddress.remove(_addr);
   }
