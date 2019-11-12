@@ -115,10 +115,10 @@ for (var i = 0; i < all.length; i++) {
     }
 
     // 备注：重复的发送一次性任务会怎么样？第二个会失败，第一个成功后，会删除掉这个定时任务
-    let taskCmd = getCmd('execute', '"' + all[i].contractAddr + '"', program.gas_limit);
+    let taskCmd = getCmd('execute', '"' + all[i].contractAddr.toLowerCase() + '"', program.gas_limit);
     let hash = execSync(taskCmd);
 
-    console.log('一次性任务:' + all[i].contractAddr + ' ', hash.toString());
+    console.log('一次性任务:' + all[i].contractAddr.toLowerCase() + ' ', hash.toString());
 
     continue;
   }
@@ -128,9 +128,9 @@ for (var i = 0; i < all.length; i++) {
   console.log(gap)
   if (gap > 120) { continue; }
 
-  let taskCmd = getCmd('execute', '"' + all[i].contractAddr + '"', program.gas_limit);
+  let taskCmd = getCmd('execute', '"' + all[i].contractAddr.toLowerCase() + '"', program.gas_limit);
   let hash = execSync(taskCmd);
 
-  console.log('周期性任务:' + all[i].contractAddr + ' 周期:' + all[i].peroid + '秒 ', hash.toString());
+  console.log('周期性任务:' + all[i].contractAddr.toLowerCase() + ' 周期:' + all[i].peroid + '秒 ', hash.toString());
 }
 

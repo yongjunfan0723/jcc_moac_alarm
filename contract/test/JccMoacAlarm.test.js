@@ -19,7 +19,7 @@ contract('JccMoacAlarm', (accounts) => {
   });
 
   it('jcc moac alarm test once', async () => {
-    await jccAlarm.addContract(alarmClient.address, { from: alarmAdmin });
+    await jccAlarm.addClient(alarmClient.address, { from: alarmAdmin });
     await jccAlarm.deposit(alarmClient.address, { from: accounts[3], value: web3.utils.toWei('1') })
 
     // client 注册一个一次性任务 30分钟后执行一次
@@ -56,7 +56,7 @@ contract('JccMoacAlarm', (accounts) => {
   });
 
   it('jcc moac alarm test', async () => {
-    await jccAlarm.addContract(alarmClient.address, { from: alarmAdmin });
+    await jccAlarm.addClient(alarmClient.address, { from: alarmAdmin });
     await jccAlarm.deposit(alarmClient.address, { from: accounts[3], value: web3.utils.toWei('1') })
 
     // client 注册一个周期性性任务 30分钟执行一次

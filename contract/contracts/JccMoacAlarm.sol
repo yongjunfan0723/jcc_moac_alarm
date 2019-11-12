@@ -33,6 +33,7 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
   }
 
   event Deposit(address indexed _from, address indexed _contractAddr, uint256 indexed _amount);
+
   // 为某个合约定时任务充值
   function deposit(address _addr) public payable returns (uint256) {
     emit Deposit(msg.sender, _addr, msg.value);
@@ -40,6 +41,7 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
   }
 
   event Withdraw(address indexed _to, uint256 indexed _amount);
+
   // 提现到执行钱包中做燃料用
   function withdraw(uint256 _amount) public payable onlyPrivileged {
     emit Withdraw(msg.sender, _amount);
@@ -52,13 +54,22 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
   }
 
   // 注册合约不需要权限
-  function addContract(address _addr) public returns (bool) {
+  function addClient(address _addr) public returns (bool) {
     return _acceptAddress.insert(_addr);
   }
 
   // 移除合约需要权限
-  function removeContract(address _addr) public onlyPrivileged returns (bool) {
+  function removeClient(address _addr) public onlyPrivileged returns (bool) {
     return _acceptAddress.remove(_addr);
+  }
+
+  // 获取所有客户合约数量
+  function getClientCount() public view returns (uint256) {
+    return _acceptAddress.count();
+  }
+
+  function getClientList(uint256 from, uint256 _count) public view returns (address[] memory) {
+    return _acceptAddress.getList(from, _count);
   }
 
   function createAlarm(address _addr, uint256 _type, uint256 _begin, uint256 _peroid) public returns (bool) {
@@ -92,6 +103,7 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
   }
 
   event Balance(address indexed _contractAddr, uint256 indexed _origin, uint256 indexed _cost);
+
   function execute(address _addr) public onlyPrivileged {
     // 检查余额，防止无意义的消耗 不能小于0.1MOAC
     require((_balances.balance(_addr) > 100000000000000000), "must have enough gas");
@@ -102,8 +114,8 @@ contract JccMoacAlarm is Administrative, IJccMoacAlarm {
 
     uint256 gap = block.timestamp.sub(e.begin).mod(e.peroid);
 
-    // 一次性任务直接过，周期性任务时差在一分钟之内都是有效的
-    if (e.alarmType == 0 || gap < 60 ) {
+    // 一次性任务直接过，周期性任务时差在两分钟之内都是有效的
+    if (e.alarmType == 0 || gap < 120 ) {
       // NEEDFIX:如果这里revert了，会消耗gas但是没有入账
       IJccMoacAlarmCallback(e.contractAddr).jccMoacAlarmCallback();
     }
