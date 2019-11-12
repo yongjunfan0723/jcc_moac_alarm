@@ -15,18 +15,30 @@ jcc moac alarm 是一个朴素的预言机，就是一个定时执行驱动的�
 [jcc moac tool](https://github.com/JCCDex/jcc-moac-tool)安装和使用，请参考官网说明，以下为朴素预言机的使用示例
 
 ```bash
-# 添加服务的合约
+# 添加服务的合约:只有注册的合约地址才能调用预言机创建定时任务
 jcc_moac_tool --abi JccMoacAlarm.json --contractAddr 0x4ed7e66203893afc9ff548cff663aafe658a6a88 --method "addContract" --parameters '"客户合约地址"' --gas_limit 55000
+
+# 删除服务的合约
+jcc_moac_tool --abi JccMoacAlarm.json --contractAddr 0x4ed7e66203893afc9ff548cff663aafe658a6a88 --method "removeContract" --parameters '"客户合约地址"' --gas_limit 100000
 ```
 
 ```bash
-# 充值
+# 充值：朴素预言机发起定时调用前，一般和该合约关联的余额少于0.1MOAC则放弃调用
 jcc_moac_tool --abi JccMoacAlarm.json --contractAddr 0x4ed7e66203893afc9ff548cff663aafe658a6a88 --method "deposit" --parameters '"待充值的合约"' --amount 10 --gas_limit 85000
 ```
 
 ```bash
 # 查询指定合约的充值余额
 jcc_moac_tool --abi JccMoacAlarm.json --contractAddr 0x4ed7e66203893afc9ff548cff663aafe658a6a88 --method "balance" --parameters '"待服务的合约地址"'
+
+# 查询当前有多少个合约注册
+jcc_moac_tool --abi JccMoacAlarm.json --contractAddr 0x4ed7e66203893afc9ff548cff663aafe658a6a88 --method "getAlarmCount"
+
+# 获取当前注册合约列表
+jcc_moac_tool --abi JccMoacAlarm.json --contractAddr 0x4ed7e66203893afc9ff548cff663aafe658a6a88 --method "getAlarmList" --parameters 'from, count'
+
+# 多签名钱包执行任务的注册（示例）
+jcc_moac_tool --abi JccMoacMultiSig.json --contractAddr "多签名钱包地址" --method "setAlarm" --parameters '"预言机合约地址",1,600' --gas_limit 200000
 ```
 
 ## 合约接口定义

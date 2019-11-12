@@ -15,15 +15,26 @@ contract MockAlarmClient is Administrative, IJccMoacAlarmCallback {
   using SafeMath for uint256;
   using AddressUtils for address;
 
-  bool callFlag;
+  uint callCounter;
   constructor() Administrative() public {
   }
 
   function jccMoacAlarmCallback() public {
-      // 业务逻辑，自我检查状态，执行自己的逻辑
-    if (!callFlag) {
-      callFlag = true;
-    }
+    // 业务逻辑,调用计数器
+    callCounter = callCounter.add(1);
+  }
+
+  function getCounter() public view returns (uint) {
+    return callCounter;
+  }
+
+  function getNum() public view returns (uint) {
+    uint percent = 60;
+    uint voters = 9;
+    uint base = percent.mul(voters);
+    uint count = base.div(100);
+    count = base.div(100).mul(100) == base ? count : count.add(1);
+    return count;
   }
 
   function setAlarm(address _alarmAddr, uint256 _type, uint256 _period) public onlyPrivileged {

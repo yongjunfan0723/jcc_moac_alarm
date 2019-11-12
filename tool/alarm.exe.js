@@ -6,6 +6,26 @@
  * 1. 查询所有的定时任务，按照时间推算最近的一次执行时间
  * 2. 按照执行时间排序后，找出需要执行的定时任务，执行
  * 3. 清除执行环境，结束一次执行
+ * 
+ * 自动任务部署步骤说明:
+ * 1. 先配置jcc_moac_tool相关钱包
+ * 2. 在命令行注册，相关指令参考README.md
+ * 3. 在服务器上运行无限循环脚本，类似：
+
+#!/bin/bash
+
+# 
+exec 1>>/root/log/`basename -s .sh $0`.log 2>&1
+cd ~/jcc_moac_alarm/tool/
+while true
+do
+date '+%F %T'
+echo "---------"
+./alarm.exe.js --address 0x0eb661e24feb6847ebfe0b9c617df3d84ed594d8 --abi /root/cron/JccMoacAlarm.json --gas_limit 400000
+echo 
+sleep 120 
+done
+
  */
 const program = require('commander');
 var utf8 = require('utf8');
@@ -105,7 +125,7 @@ for (var i = 0; i < all.length; i++) {
 
   // 周期性任务，粒度尽量保证5分钟以上，PoW共识速度不允许太小的粒度
   var gap = (_now - all[i].begin) % all[i].peroid;
-
+  console.log(gap)
   if (gap > 120) { continue; }
 
   let taskCmd = getCmd('execute', '"' + all[i].contractAddr + '"', program.gas_limit);
