@@ -53,9 +53,9 @@ export class AlarmContract extends SmartContract {
     const bytes = await super.callABI("deposit", address);
     let hash: string;
     if (!tpInfo.isConnected()) {
-      hash = await super.moac.sendTransactionWithCallData(process.env.MOAC_SECRET, process.env.CONTRACT, amount, bytes, { gasLimit: 170000 });
+      hash = await super.moac.sendTransactionWithCallData(process.env.MOAC_SECRET, process.env.CONTRACT, amount, bytes, { gasLimit: 180000 });
     } else {
-      hash = await this.sendTransactionByTp(process.env.CONTRACT, amount, bytes, { gasLimit: 170000 });
+      hash = await this.sendTransactionByTp(process.env.CONTRACT, amount, bytes, { gasLimit: 180000 });
     }
     return hash;
   }

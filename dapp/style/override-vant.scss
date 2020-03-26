@@ -18,6 +18,10 @@
   @include px2px("font-size", 14);
 }
 
+.van-field__control {
+  padding:10px 0 0 !important;
+}
+
 .van-field__control,
 .van-cell__value--alone {
   color: #B6B9BD !important;
