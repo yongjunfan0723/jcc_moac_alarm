@@ -16,12 +16,11 @@ export default {
         content: process.env.npm_package_description || ""
       }
     ],
-    script: [
-      {
+    script: [{
         src: process.env.NODE_ENV === "development" ? "https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js" : "https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"
       },
       {
-        src: "https://cdn.jsdelivr.net/npm/jcc-moac-utils@0.2.3/dist/jcc-moac-utils.min.js"
+        src: "https://cdn.jsdelivr.net/npm/jcc-moac-utils@0.3.8/dist/jcc-moac-utils.min.js"
       },
       {
         src: "https://cdn.jsdelivr.net/npm/ethers@4.0.37/dist/ethers.min.js"
