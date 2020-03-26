@@ -1,4 +1,4 @@
-!(function(e) {
+!(function (e) {
   function t(a) {
     if (i[a]) return i[a].exports;
     var n = (i[a] = {
@@ -11,13 +11,13 @@
   var i = {};
   return (t.m = e), (t.c = i), (t.p = ""), t(0);
 })([
-  function(e, t) {
+  function (e, t) {
     "use strict";
     Object.defineProperty(t, "__esModule", {
       value: !0
     });
     var i = window;
-    (t["default"] = i.flex = function(normal) {
+    (t["default"] = i.flex = function (normal) {
       var r = i.document,
         o = navigator.userAgent,
         d = o.match(/Android[\S\s]+AppleWebkit\/(\d{3})/i),

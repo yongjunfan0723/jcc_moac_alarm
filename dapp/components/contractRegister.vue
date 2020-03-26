@@ -3,7 +3,7 @@
     <div ref="scroll" flex class="scroll-wrapper" style="height: calc(100%-1.1rem);">
       <div flex-box="1" flex="dir:top cross: center">
         <van-field v-model="contractAddress" center type="text" :placeholder="$t('input_contract_addr')" style="margin-top: 0.3rem;" />
-        <button :disabled="!registerEnable" class="jcc-moac-alarm-button jcc-moac-alarm-register-button" style="width:100%;margin-top: 0.4rem;" @click="goRegister">
+        <button :disabled="!registerEnable" class="jcc-moac-alarm-button jcc-moac-alarm-register-button" style="width: 100%; margin-top: 0.4rem;" @click="goRegister">
           {{ $t("confirm_register") }}
         </button>
       </div>

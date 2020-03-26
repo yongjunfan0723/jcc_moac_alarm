@@ -12,14 +12,14 @@ const abiCoder = ethers.utils.defaultAbiCoder;
  */
 Object.defineProperty(SolidityFunction.prototype, "call", {
   get() {
-    return function() {
+    return function () {
       return new Promise((resolve, reject) => {
-        const args = Array.prototype.slice.call(arguments).filter(function(a) {
+        const args = Array.prototype.slice.call(arguments).filter(function (a) {
           return a !== undefined;
         });
         const defaultBlock = this.extractDefaultBlock(args);
         const payload = this.toPayload(args);
-        this._mc.call(payload, defaultBlock, function(error, output) {
+        this._mc.call(payload, defaultBlock, function (error, output) {
           if (error) return reject(error);
           console.log("output: ", output);
           return resolve(output);
@@ -68,7 +68,7 @@ export class AlarmContract extends SmartContract {
    * @memberof AlarmContract
    */
   public async getContractBalance(address: string): Promise<string> {
-    const abiItem = abi.find(item => item.name == "balance");
+    const abiItem = abi.find((item) => item.name == "balance");
     const output = await super.callABI("balance", address);
     const decodeData = abiCoder.decode(abiItem.outputs, output);
     return super.moac.getChain3().fromSha(decodeData[0].toString(10));

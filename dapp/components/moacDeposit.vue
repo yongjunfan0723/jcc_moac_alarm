@@ -1,10 +1,10 @@
 <template>
   <div ref="scroll" flex class="scroll-wrapper" style="height: calc(100%-1.1rem);">
     <div flex-box="1" flex="dir:top cross: center">
-      <div style="text-align:left;margin-top: 0.2rem;">
+      <div style="text-align: left; margin-top: 0.2rem;">
         {{ $t("moac_wallet") }}
       </div>
-      <div style="word-break:break-all;text-align:left;margin-top:0.1rem;">
+      <div style="word-break: break-all; text-align: left; margin-top: 0.1rem;">
         {{ address }}
       </div>
       <van-field v-model="moacContractAddress" center type="text" :placeholder="$t('input_deposit_maoc_address')" style="margin-top: 0.3rem;" />
@@ -16,16 +16,16 @@
       </div>
       <van-field v-model="amount" center type="number" :placeholder="$t('input_deposit_amount')" style="margin-top: 0.3rem;" />
       <div v-show="showElement" flex-box="1" flex="cross:bottom" style="margin-top: 0.4rem;">
-        <button :disabled="!depositEnable" class="jcc-moac-alarm-button jcc-moac-alarm-register-button" style="width:100%;" @click="show = true">
+        <button :disabled="!depositEnable" class="jcc-moac-alarm-button jcc-moac-alarm-register-button" style="width: 100%;" @click="show = true">
           {{ $t("deposit") }}
         </button>
       </div>
 
       <van-action-sheet v-model="show" :title="$t('deposit_action.title')">
-        <p style="text-align:left;margin-top:0.45rem;margin-bottom:0.95rem">
+        <p style="text-align: left; margin-top: 0.45rem; margin-bottom: 0.95rem;">
           {{ $t("deposit_action.content", { amount, token: $t("moac") }) }}
         </p>
-        <button class="jcc-moac-alarm-button jcc-moac-alarm-confirm-button" style="width:100%;" @click="depositConfirm">
+        <button class="jcc-moac-alarm-button jcc-moac-alarm-confirm-button" style="width: 100%;" @click="depositConfirm">
           {{ $t("deposit_action.button") }}
         </button>
       </van-action-sheet>

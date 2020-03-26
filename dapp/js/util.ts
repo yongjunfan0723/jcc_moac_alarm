@@ -8,7 +8,7 @@ const isMainnet = (): boolean => {
 };
 
 const browser = {
-  versions: (function() {
+  versions: (function () {
     let u = navigator.userAgent;
     return {
       ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
