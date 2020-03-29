@@ -21,18 +21,47 @@ export default {
   mixins: [scrollIntoView],
   data() {
     return {
-      contractAddress: ""
+      contractAddress: "",
+      registerEnable: false
     };
   },
   computed: {
-    registerEnable() {
-      return moacWallet.isValidAddress(this.contractAddress.trim());
+    inputAddress() {
+      return this.contractAddress;
+    }
+  },
+  watch: {
+    inputAddress(newVal) {
+      const newMoacAddress = newVal.trim();
+      if (!moacWallet.isValidAddress(newMoacAddress)) {
+        this.registerEnable = false;
+        return;
+      }
+      this.validAddress(newMoacAddress);
     }
   },
   beforeDestroy() {
     AlarmContractInstance.destroy();
   },
   methods: {
+    async validAddress(address) {
+      try {
+        const node = await tpInfo.getNode();
+        const instance = AlarmContractInstance.init(node);
+        const chain3 = instance.moac.getChain3();
+        const code = chain3.mc.getCode(address);
+        if (code === "0x") {
+          console.log("this is address");
+          this.registerEnable = false;
+        } else {
+          console.log("this is contract address");
+          this.registerEnable = true;
+        }
+      } catch (error) {
+        console.log("valid address error", error);
+        this.registerEnable = false;
+      }
+    },
     async goRegister() {
       try {
         const node = await tpInfo.getNode();

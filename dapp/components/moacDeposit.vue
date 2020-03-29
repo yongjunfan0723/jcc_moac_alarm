@@ -56,7 +56,8 @@ export default {
       amount: "",
       balance: "",
       contractAddrBalance: "",
-      show: false
+      show: false,
+      disabled: false
     };
   },
   computed: {
@@ -64,7 +65,7 @@ export default {
       const minGas = 0.1;
       const bn = new BigNumber(this.amount);
       // bn.modulo(1).toNumber() === 0
-      return moacWallet.isValidAddress(this.moacContractAddress.trim()) && BigNumber.isBigNumber(bn) && bn.isGreaterThanOrEqualTo(0) && bn.plus(minGas).isLessThan(this.balance);
+      return moacWallet.isValidAddress(this.moacContractAddress.trim()) && this.disabled && BigNumber.isBigNumber(bn) && bn.isGreaterThanOrEqualTo(0) && bn.plus(minGas).isLessThan(this.balance);
     },
     inputAddress() {
       return this.moacContractAddress;
@@ -78,6 +79,7 @@ export default {
         return;
       }
       this.getContractBalance(newMoacAddress);
+      this.validAddress(newMoacAddress);
     }
   },
   mounted() {
@@ -89,6 +91,22 @@ export default {
     AlarmContractInstance.destroy();
   },
   methods: {
+    async validAddress(address) {
+      try {
+        const node = await tpInfo.getNode();
+        const instance = AlarmContractInstance.init(node);
+        const chain3 = instance.moac.getChain3();
+        const code = chain3.mc.getCode(address);
+        if (code === "0x") {
+          this.disabled = false;
+        } else {
+          this.disabled = true;
+        }
+      } catch (error) {
+        console.log("valid address error", error);
+        this.disabled = false;
+      }
+    },
     async getCurrentWallet() {
       this.address = await tpInfo.getAddress();
     },
@@ -135,6 +153,8 @@ export default {
           if (res) {
             if (transaction.isSuccessful(res)) {
               Toast.success(this.$t("message.submit_succeed"));
+              this.getBalance();
+              this.getContractBalance(this.inputAddress);
             } else {
               Toast.fail(this.$t("message.submit_failed"));
             }
